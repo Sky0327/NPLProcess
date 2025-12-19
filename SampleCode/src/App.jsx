@@ -1,21 +1,17 @@
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
-import Layout from './components/Layout/Layout'
-import Home from './pages/Home/Home'
-import SmartNPL1 from './pages/SmartNPL1/SmartNPL1'
-import SmartNPL2 from './pages/SmartNPL2/SmartNPL2'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import DashboardLayout from './components/Layout/DashboardLayout'
+import UnifiedWorkflow from './components/Workflow/UnifiedWorkflow'
 
 function App() {
   return (
-    <Layout>
+    <DashboardLayout>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/smart-npl1" element={<SmartNPL1 />} />
-        <Route path="/smart-npl2" element={<SmartNPL2 />} />
+        <Route path="/" element={<UnifiedWorkflow />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Layout>
+    </DashboardLayout>
   )
 }
 
 export default App
-
