@@ -185,7 +185,9 @@ const CoverSheetSection = () => {
                 onChange={handleCoverChange('address')}
                 fullWidth
                 size="small"
+                required
                 placeholder="예: 서울 관악구 신림동 1694 신림현대아파트 제103동 제303호"
+                helperText="2단계 데이터 조회에 필요합니다"
               />
             </Grid>
             <Grid item xs={12} sm={6}>

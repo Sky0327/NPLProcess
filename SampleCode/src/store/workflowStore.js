@@ -266,7 +266,7 @@ const useWorkflowStore = create(
         const cover = state.coverData
 
         if (taskId === 'coverData') {
-          return !!(config.reportName && config.projectId && cover.sellingInstitution && cover.borrowerName)
+          return !!(config.reportName && config.projectId && cover.sellingInstitution && cover.borrowerName && cover.address)
         }
         return false
       },

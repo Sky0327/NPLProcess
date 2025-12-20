@@ -121,7 +121,7 @@ const InitializationPhase = () => {
                 </Typography>
                 {!isComplete && (
                   <Chip
-                    label="필수: 보고서명, 프로젝트ID, 매각기관, 차주명"
+                    label="필수: 보고서명, 프로젝트ID, 매각기관, 차주명, 소재지"
                     size="small"
                     color="warning"
                     variant="outlined"
