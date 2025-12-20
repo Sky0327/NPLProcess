@@ -15,16 +15,16 @@ import {
 } from '@mui/icons-material'
 import GlobalProgressBar from '../Dashboard/GlobalProgressBar'
 import WorkflowSidebar from '../Dashboard/WorkflowSidebar'
-import ActivityLog from '../Dashboard/ActivityLog'
+import ChatBot from '../Dashboard/ChatBot'
 
 const SIDEBAR_WIDTH = 260
-const ACTIVITY_LOG_WIDTH = 340
+const CHATBOT_WIDTH = 360
 
 const DashboardLayout = ({ children }) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile)
-  const [activityLogOpen, setActivityLogOpen] = useState(!isMobile)
+  const [chatBotOpen, setChatBotOpen] = useState(!isMobile)
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -93,10 +93,10 @@ const DashboardLayout = ({ children }) => {
             <Box sx={{ flexGrow: 1 }} />
 
             <IconButton
-              onClick={() => setActivityLogOpen(!activityLogOpen)}
+              onClick={() => setChatBotOpen(!chatBotOpen)}
               sx={{ color: 'text.primary' }}
             >
-              {activityLogOpen ? <ChevronRight /> : <ChevronLeft />}
+              {chatBotOpen ? <ChevronRight /> : <ChevronLeft />}
             </IconButton>
           </Toolbar>
 
@@ -117,19 +117,19 @@ const DashboardLayout = ({ children }) => {
         </Box>
       </Box>
 
-      {/* Activity Log Sidebar */}
+      {/* ChatBot Sidebar */}
       <Box
         sx={{
-          width: activityLogOpen ? ACTIVITY_LOG_WIDTH : 0,
+          width: chatBotOpen ? CHATBOT_WIDTH : 0,
           flexShrink: 0,
           transition: 'width 0.2s ease',
           overflow: 'hidden',
-          borderLeft: activityLogOpen ? '1px solid' : 'none',
+          borderLeft: chatBotOpen ? '1px solid' : 'none',
           borderColor: 'divider',
           bgcolor: 'background.paper',
         }}
       >
-        <ActivityLog open={activityLogOpen} width={ACTIVITY_LOG_WIDTH} />
+        <ChatBot open={chatBotOpen} width={CHATBOT_WIDTH} />
       </Box>
     </Box>
   )

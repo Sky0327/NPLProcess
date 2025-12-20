@@ -41,8 +41,10 @@ export const apiService = {
   },
 
   // KB 시세 조회
-  async getKBPrice(registryData, landPriceData) {
+  async getKBPrice(depData) {
     await delay(2000)
+    // depData는 { registry: [...], landPrice: [...] } 형태의 객체
+    // 실제 구현에서는 depData를 활용하지만, mock에서는 무시
     return {
       success: true,
       data: mockKBData,
@@ -68,11 +70,14 @@ export const apiService = {
   },
 
   // 거리 계산 (국토)
-  async calculateDistance(priceData) {
+  async calculateDistance(depData) {
     await delay(1000)
+    // depData는 { realEstatePrice: [...] } 형태의 객체
+    const priceData = depData?.realEstatePrice || mockRealEstatePriceData || []
+    const dataArray = Array.isArray(priceData) ? priceData : []
     return {
       success: true,
-      data: priceData.map((item) => ({
+      data: dataArray.map((item) => ({
         ...item,
         distance: `${Math.floor(Math.random() * 1000)}m`,
       })),
@@ -80,11 +85,14 @@ export const apiService = {
   },
 
   // 거리 계산 (밸류맵)
-  async calculateDistanceValuemap(priceData) {
+  async calculateDistanceValuemap(depData) {
     await delay(1000)
+    // depData는 { valuemapPrice: [...] } 형태의 객체
+    const priceData = depData?.valuemapPrice || mockRealEstatePriceData || []
+    const dataArray = Array.isArray(priceData) ? priceData : []
     return {
       success: true,
-      data: priceData.map((item) => ({
+      data: dataArray.map((item) => ({
         ...item,
         distance: `${Math.floor(Math.random() * 1000)}m`,
       })),
@@ -110,8 +118,10 @@ export const apiService = {
   },
 
   // 인포케어 사례
-  async getInfocareCases(integratedData) {
+  async getInfocareCases(depData) {
     await delay(1500)
+    // depData는 { infocareIntegrated: [...] } 형태의 객체
+    // 실제 구현에서는 depData를 활용하지만, mock에서는 무시
     return {
       success: true,
       data: mockInfocareData,

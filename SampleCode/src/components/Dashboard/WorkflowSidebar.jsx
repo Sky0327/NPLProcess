@@ -28,6 +28,7 @@ const WorkflowSidebar = ({ open, width }) => {
     taskResults,
     taskStatus,
     calculatePhaseProgress,
+    isPhase1TaskComplete,
   } = useWorkflowStore()
 
   const [expandedPhases, setExpandedPhases] = React.useState({
@@ -45,7 +46,7 @@ const WorkflowSidebar = ({ open, width }) => {
     }))
   }
 
-  const getTaskIcon = (taskId) => {
+  const getTaskIcon = (taskId, phaseId) => {
     const status = taskStatus[taskId]
     const result = taskResults[taskId]
 
@@ -55,6 +56,15 @@ const WorkflowSidebar = ({ open, width }) => {
     if (status?.error) {
       return <ErrorIcon sx={{ color: 'error.main', fontSize: 18 }} />
     }
+
+    // Phase 1 tasks use special check
+    if (phaseId === 1) {
+      if (isPhase1TaskComplete(taskId)) {
+        return <CheckCircle sx={{ color: 'success.main', fontSize: 18 }} />
+      }
+      return <RadioButtonUnchecked sx={{ color: 'grey.400', fontSize: 18 }} />
+    }
+
     if (result !== null && result !== undefined) {
       return <CheckCircle sx={{ color: 'success.main', fontSize: 18 }} />
     }
@@ -243,7 +253,7 @@ const WorkflowSidebar = ({ open, width }) => {
                         }}
                       >
                         <ListItemIcon sx={{ minWidth: 28 }}>
-                          {getTaskIcon(task.id)}
+                          {getTaskIcon(task.id, phase.id)}
                         </ListItemIcon>
                         <ListItemText
                           primary={

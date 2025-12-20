@@ -1,6 +1,89 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+// Helper to generate unique IDs
+const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+
+// Initial Cover Data
+const initialCoverData = {
+  // 기본 정보
+  sellingInstitution: '',     // 매각기관
+  businessType: '사후재정산방식 담보부채권 양수도', // 업무구분
+  borrowerName: '',           // 차주명
+  propertyType: '',           // 물건유형
+  address: '',                // 소재지
+  reportDate: null,           // 작성일
+  preparingOrg: 'MCI대부㈜',  // 작성기관
+
+  // 주요 가정
+  discountRate: 0.0628,       // 현가할인율 (6.28%)
+  baseRate: 0.056,            // 기본할인율 (5.6%)
+  purchaseRate: 0.0088,       // 매입할인율 (0.88%)
+  managementCostRate: 0.0095, // 관리비용률 (0.95%)
+  discountPeriod: 360,        // 할인기간 (360/420)
+
+  // 사업자 구분
+  businessClassification: '개인', // 개인/기업
+}
+
+// Create empty debt item
+const createEmptyDebt = (priority = '') => ({
+  id: generateId(),
+  priority,                   // 구분(순위)
+  institutionName: '',        // 금융기관명
+  accountNumber: '',          // 계좌번호
+  maxDebtAmount: 0,           // 채권최고액
+  outstandingBalance: 0,      // 대출잔액
+  advancePayment: 0,          // 가지급금
+  accruedInterest: 0,         // 미수이자
+  handlingDate: null,         // 취급일
+  maturityDate: null,         // 만기일
+  defaultDate: null,          // 기한이익상실일
+  mortgageDate: null,         // 근저당설정일
+  delinquencyRate: 0,         // 연체이자율
+})
+
+// Create empty collateral item
+const createEmptyCollateral = (propertyIndex = 1) => ({
+  id: generateId(),
+  propertyIndex,              // 물건 순번
+
+  // 토지 정보
+  landUseZone: '',            // 용도지역
+  landArea: 0,                // 면적 (㎡)
+  landPrice: 0,               // 개별공시지가 (원/㎡)
+
+  // 건물 정보
+  propertyType: '',           // 물건유형
+  address: '',                // 소재지
+  buildingArea: 0,            // 면적 (㎡)
+  buildingScale: '',          // 규모
+  buildingStructure: '',      // 구조
+
+  // 감정평가
+  appraisedValue: 0,          // 대출당시 감정평가액
+  internalAppraisal: 0,       // 자체감정가
+  appraiser: '',              // 평가기관
+  auctionRate: 0,             // 낙찰가율 (%)
+})
+
+// Initial calculated results
+const initialCalculatedResults = {
+  // Per-property calculations
+  propertyResults: [],
+  // Aggregated totals
+  totalCollateralValue: 0,    // 총 담보평가액
+  totalNRV: 0,                // 총 순회수금
+  totalNPV: 0,                // 총 매각대금
+  totalFV: 0,                 // 총 미래가
+  totalSettlement: 0,         // 총 정산차액
+  totalFees: 0,               // 총 수수료
+  // Debt totals
+  totalMaxDebtAmount: 0,      // 총 채권최고액
+  totalOutstandingBalance: 0, // 총 대출잔액
+  totalRecoveryDebt: 0,       // 총 회수시점채권액
+}
+
 const initialTaskResults = {
   // Phase 2 - Parallel Queries
   registry: null,
@@ -53,6 +136,18 @@ const useWorkflowStore = create(
         inputFolderPath: '',
       },
 
+      // Cover Sheet Data
+      coverData: { ...initialCoverData },
+
+      // Debt Information Array
+      debtInfo: [createEmptyDebt('1순위')],
+
+      // Collateral Information Array
+      collateralInfo: [createEmptyCollateral(1)],
+
+      // Calculated Results
+      calculatedResults: { ...initialCalculatedResults },
+
       // Phase Status
       phases: { ...initialPhases },
 
@@ -72,6 +167,65 @@ const useWorkflowStore = create(
         set((state) => ({
           projectConfig: { ...state.projectConfig, ...config },
         })),
+
+      // Cover Data Actions
+      setCoverData: (data) =>
+        set((state) => ({
+          coverData: { ...state.coverData, ...data },
+        })),
+
+      resetCoverData: () => set({ coverData: { ...initialCoverData } }),
+
+      // Debt Info CRUD Actions
+      addDebtInfo: (priority = '') =>
+        set((state) => ({
+          debtInfo: [...state.debtInfo, createEmptyDebt(priority || `${state.debtInfo.length + 1}순위`)],
+        })),
+
+      updateDebtInfo: (id, updates) =>
+        set((state) => ({
+          debtInfo: state.debtInfo.map((debt) =>
+            debt.id === id ? { ...debt, ...updates } : debt
+          ),
+        })),
+
+      removeDebtInfo: (id) =>
+        set((state) => ({
+          debtInfo: state.debtInfo.filter((debt) => debt.id !== id),
+        })),
+
+      setDebtInfo: (debtArray) => set({ debtInfo: debtArray }),
+
+      // Collateral Info CRUD Actions
+      addCollateralInfo: () =>
+        set((state) => ({
+          collateralInfo: [
+            ...state.collateralInfo,
+            createEmptyCollateral(state.collateralInfo.length + 1),
+          ],
+        })),
+
+      updateCollateralInfo: (id, updates) =>
+        set((state) => ({
+          collateralInfo: state.collateralInfo.map((col) =>
+            col.id === id ? { ...col, ...updates } : col
+          ),
+        })),
+
+      removeCollateralInfo: (id) =>
+        set((state) => ({
+          collateralInfo: state.collateralInfo.filter((col) => col.id !== id),
+        })),
+
+      setCollateralInfo: (collateralArray) => set({ collateralInfo: collateralArray }),
+
+      // Calculated Results Actions
+      setCalculatedResults: (results) =>
+        set((state) => ({
+          calculatedResults: { ...state.calculatedResults, ...results },
+        })),
+
+      resetCalculatedResults: () => set({ calculatedResults: { ...initialCalculatedResults } }),
 
       updatePhase: (phaseId, updates) =>
         set((state) => ({
@@ -105,11 +259,23 @@ const useWorkflowStore = create(
 
       clearLog: () => set({ activityLog: [] }),
 
+      // Check if Phase 1 task is complete
+      isPhase1TaskComplete: (taskId) => {
+        const state = get()
+        const config = state.projectConfig
+        const cover = state.coverData
+
+        if (taskId === 'coverData') {
+          return !!(config.reportName && config.projectId && cover.sellingInstitution && cover.borrowerName)
+        }
+        return false
+      },
+
       // Calculate phase progress
       calculatePhaseProgress: (phaseId) => {
         const state = get()
         const phaseTasks = {
-          1: ['projectConfig'],
+          1: ['coverData'],
           2: [
             'registry',
             'landPrice',
@@ -141,14 +307,8 @@ const useWorkflowStore = create(
         if (tasks.length === 0) return 0
 
         if (phaseId === 1) {
-          const config = state.projectConfig
-          const filled = [
-            config.reportName,
-            config.projectId,
-            config.apiId,
-            config.inputFolderPath,
-          ].filter(Boolean).length
-          return Math.round((filled / 4) * 100)
+          const completedTasks = tasks.filter(taskId => state.isPhase1TaskComplete(taskId)).length
+          return Math.round((completedTasks / tasks.length) * 100)
         }
 
         const completedTasks = tasks.filter(
@@ -205,6 +365,10 @@ const useWorkflowStore = create(
             apiPassword: '',
             inputFolderPath: '',
           },
+          coverData: { ...initialCoverData },
+          debtInfo: [createEmptyDebt('1순위')],
+          collateralInfo: [createEmptyCollateral(1)],
+          calculatedResults: { ...initialCalculatedResults },
           phases: { ...initialPhases },
           taskResults: { ...initialTaskResults },
           taskStatus: {},
@@ -215,6 +379,10 @@ const useWorkflowStore = create(
       name: 'npl-workflow-storage',
       partialize: (state) => ({
         projectConfig: state.projectConfig,
+        coverData: state.coverData,
+        debtInfo: state.debtInfo,
+        collateralInfo: state.collateralInfo,
+        calculatedResults: state.calculatedResults,
         taskResults: state.taskResults,
         activityLog: state.activityLog,
         activePhase: state.activePhase,

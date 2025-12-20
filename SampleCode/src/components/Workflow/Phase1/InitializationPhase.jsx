@@ -4,20 +4,23 @@ import {
   Card,
   CardContent,
   Typography,
-  TextField,
   Button,
-  Grid,
-  Divider,
   Alert,
+  Chip,
 } from '@mui/material'
-import { Save, NavigateNext, FolderOpen } from '@mui/icons-material'
+import {
+  Save,
+  NavigateNext,
+  Info,
+} from '@mui/icons-material'
 import useWorkflowStore from '../../../store/workflowStore'
 import { PHASES } from '../../../data/workflowConfig'
+import CoverSheetSection from './CoverSheetSection'
 
 const InitializationPhase = () => {
   const {
     projectConfig,
-    setProjectConfig,
+    coverData,
     setActivePhase,
     addLogEntry,
     calculatePhaseProgress,
@@ -27,15 +30,11 @@ const InitializationPhase = () => {
   const progress = calculatePhaseProgress(1)
   const isComplete = progress === 100
 
-  const handleChange = (field) => (event) => {
-    setProjectConfig({ [field]: event.target.value })
-  }
-
   const handleSave = () => {
     addLogEntry({
       type: 'success',
-      action: '프로젝트 설정 저장',
-      details: `보고서명: ${projectConfig.reportName}`,
+      action: '기본 설정 저장',
+      details: `보고서명: ${projectConfig.reportName}, 차주: ${coverData.borrowerName}`,
       phase: 1,
     })
   }
@@ -53,7 +52,7 @@ const InitializationPhase = () => {
 
     addLogEntry({
       type: 'info',
-      action: 'Phase 1 완료',
+      action: '기본값 설정 완료',
       details: '데이터 조회 단계로 이동',
       phase: 1,
     })
@@ -85,140 +84,79 @@ const InitializationPhase = () => {
           {phase.fullName}
         </Typography>
         <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
-          프로젝트 기본 정보를 설정합니다.
+          데이터 조회에 필요한 기본 정보를 입력합니다.
         </Typography>
       </Box>
 
-      <Grid container spacing={3}>
-        {/* 프로젝트 정보 */}
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                프로젝트 정보
+      {/* Info Alert */}
+      <Alert severity="info" sx={{ mb: 3 }} icon={<Info />}>
+        <Typography variant="body2">
+          아래 정보를 입력한 후, <strong>다음 단계</strong>에서 외부 데이터를 조회하면
+          채권/담보물 상세 정보가 자동으로 입력됩니다.
+        </Typography>
+      </Alert>
+
+      {/* Cover Sheet Section */}
+      <CoverSheetSection />
+
+      {/* Status and Actions */}
+      <Card sx={{ mt: 3 }}>
+        <CardContent>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 2,
+            }}
+          >
+            <Box>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                설정 진행률
               </Typography>
-
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <TextField
-                  label="보고서명"
-                  value={projectConfig.reportName}
-                  onChange={handleChange('reportName')}
-                  fullWidth
-                  size="small"
-                  placeholder="예: 2024년 1분기 NPL 평가"
-                  required
-                />
-
-                <TextField
-                  label="프로젝트 ID"
-                  value={projectConfig.projectId}
-                  onChange={handleChange('projectId')}
-                  fullWidth
-                  size="small"
-                  placeholder="예: NPL-2024-001"
-                  required
-                />
-
-                <TextField
-                  label="입력 폴더 경로"
-                  value={projectConfig.inputFolderPath}
-                  onChange={handleChange('inputFolderPath')}
-                  fullWidth
-                  size="small"
-                  placeholder="예: C:\NPLData\Input"
-                  InputProps={{
-                    endAdornment: (
-                      <FolderOpen
-                        sx={{ color: 'text.secondary', cursor: 'pointer' }}
-                      />
-                    ),
-                  }}
-                  required
-                />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* API 설정 */}
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                API 인증 설정
-              </Typography>
-
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <TextField
-                  label="API ID"
-                  value={projectConfig.apiId}
-                  onChange={handleChange('apiId')}
-                  fullWidth
-                  size="small"
-                  placeholder="API 사용자 ID"
-                  required
-                />
-
-                <TextField
-                  label="API Password"
-                  type="password"
-                  value={projectConfig.apiPassword}
-                  onChange={handleChange('apiPassword')}
-                  fullWidth
-                  size="small"
-                  placeholder="API 비밀번호"
-                />
-
-                <Alert severity="info" sx={{ fontSize: '0.8rem' }}>
-                  API 인증 정보는 외부 데이터 조회 시 사용됩니다.
-                </Alert>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* 상태 및 액션 */}
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <Box>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    설정 진행률
-                  </Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    {progress}% 완료
-                  </Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  <Button
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  {progress}% 완료
+                </Typography>
+                {!isComplete && (
+                  <Chip
+                    label="필수: 보고서명, 프로젝트ID, 매각기관, 차주명"
+                    size="small"
+                    color="warning"
                     variant="outlined"
-                    startIcon={<Save />}
-                    onClick={handleSave}
-                  >
-                    저장
-                  </Button>
-                  <Button
-                    variant="contained"
-                    endIcon={<NavigateNext />}
-                    onClick={handleNext}
-                    disabled={!isComplete}
-                  >
-                    다음 단계
-                  </Button>
-                </Box>
+                  />
+                )}
+                {isComplete && (
+                  <Chip
+                    label="입력 완료"
+                    size="small"
+                    color="success"
+                  />
+                )}
               </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                variant="outlined"
+                startIcon={<Save />}
+                onClick={handleSave}
+              >
+                저장
+              </Button>
+              <Button
+                variant="contained"
+                endIcon={<NavigateNext />}
+                onClick={handleNext}
+                disabled={!isComplete}
+              >
+                데이터 조회로 이동
+              </Button>
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
     </Box>
   )
 }

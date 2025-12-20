@@ -1,21 +1,18 @@
 export const PHASES = {
   1: {
     id: 1,
-    name: '초기화',
-    fullName: 'Phase 1: 초기화 및 설정',
+    name: '기본값 설정',
+    fullName: '기본값 설정',
     weight: 10,
     color: '#aa3142',
     tasks: [
-      { id: 'init', name: '파일 초기화', type: 'setup' },
-      { id: 'reportName', name: '보고서명 설정', type: 'input' },
-      { id: 'apiSetup', name: 'ID/API 설정', type: 'input' },
-      { id: 'dataLoad', name: '데이터 로드', type: 'action' },
+      { id: 'coverData', name: '기본 정보 입력', type: 'input' },
     ],
   },
   2: {
     id: 2,
     name: '데이터 조회',
-    fullName: 'Phase 2: 병렬 데이터 조회',
+    fullName: '외부 데이터 조회',
     weight: 25,
     color: '#2196f3',
     parallel: true,
@@ -40,7 +37,7 @@ export const PHASES = {
   3: {
     id: 3,
     name: '중간 처리',
-    fullName: 'Phase 3: 중간 처리',
+    fullName: '데이터 중간 처리',
     weight: 20,
     color: '#9c27b0',
     parallel: false,
@@ -74,7 +71,7 @@ export const PHASES = {
   4: {
     id: 4,
     name: '리포트 생성',
-    fullName: 'Phase 4: 리포트 생성',
+    fullName: '리포트 생성',
     weight: 30,
     color: '#ff9800',
     tasks: [
@@ -110,7 +107,7 @@ export const PHASES = {
   5: {
     id: 5,
     name: '최종 처리',
-    fullName: 'Phase 5: 최종 처리',
+    fullName: '최종 처리 및 내보내기',
     weight: 15,
     color: '#4caf50',
     tasks: [
